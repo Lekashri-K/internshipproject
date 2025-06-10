@@ -24,8 +24,12 @@ const TodoApp: React.FC = () => {
       }
       const fetchedTodos: Todo[] = await response.json();
       setTodos(fetchedTodos);
-    } catch (err: any) {
-      setTodoError('Failed to fetch todos: ' + err.message);
+    } catch (error: unknown) { // Changed 'any' to 'unknown'
+      let errorMessage = 'Failed to fetch todos. Please try again.';
+      if (error instanceof Error) { // Type guard for 'Error' instance
+        errorMessage = 'Failed to fetch todos: ' + error.message;
+      }
+      setTodoError(errorMessage);
     } finally {
       setLoadingTodos(false);
     }
@@ -53,8 +57,14 @@ const TodoApp: React.FC = () => {
       const addedTodo: Todo = await response.json();
       setTodos((prevTodos) => [...prevTodos, addedTodo]);
       setNewTodoTitle('');
-    } catch (err: any) {
-      setTodoError('Failed to add todo: ' + err.message);
+    } catch (error: unknown) { // Changed 'any' to 'unknown'
+      let errorMessage = 'Failed to add todo. Please try again.';
+      if (error instanceof Error) { // Type guard for 'Error' instance
+        errorMessage = 'Failed to add todo: ' + error.message;
+      }
+      setTodoError(errorMessage);
+    } finally {
+      // If needed, you might set loading state here too for add operations
     }
   };
 
@@ -72,28 +82,32 @@ const TodoApp: React.FC = () => {
 
   return (
     <div style={{
-      fontFamily: 'Arial, sans-serif',
+      fontFamily: '"Inter", sans-serif',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: '#f4f7f6',
-      padding: '20px'
+      background: 'linear-gradient(to right bottom, #e8f5e9, #c8e6c9)', // Light green gradient
+      padding: '20px',
+      boxSizing: 'border-box'
     }}>
       <div style={{
         backgroundColor: '#ffffff',
-        borderRadius: '10px',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+        borderRadius: '15px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
         padding: '30px',
-        maxWidth: '500px',
+        maxWidth: '550px',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        border: '1px solid #a5d6a7', // Subtle border
       }}>
         <h1 style={{
           textAlign: 'center',
           color: '#333',
           marginBottom: '30px',
-          fontSize: '2.5em'
+          fontSize: '2.5em',
+          fontWeight: '700',
+          letterSpacing: '-0.5px'
         }}>
           My To-Do List
         </h1>
@@ -111,12 +125,16 @@ const TodoApp: React.FC = () => {
             placeholder="Add a new todo..."
             style={{
               flexGrow: 1,
-              padding: '12px 15px',
-              border: '1px solid #ddd',
-              borderRadius: '5px',
-              fontSize: '1em',
-              minWidth: '200px'
+              padding: '14px 18px',
+              border: '1px solid #c8e6c9',
+              borderRadius: '8px',
+              fontSize: '1.05em',
+              minWidth: '200px',
+              outline: 'none',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)',
             }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = '#4CAF50', e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08), 0 0 0 3px rgba(76,175,80,0.25)')}
+            onBlur={(e) => (e.currentTarget.style.borderColor = '#c8e6c9', e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.08)')}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleAddTodo();
@@ -126,18 +144,19 @@ const TodoApp: React.FC = () => {
           <button
             onClick={handleAddTodo}
             style={{
-              padding: '12px 20px',
-              backgroundColor: '#007bff',
+              padding: '14px 25px',
+              background: 'linear-gradient(to right, #4CAF50, #66BB6A)',
               color: 'white',
               border: 'none',
-              borderRadius: '5px',
+              borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '1em',
+              fontSize: '1.05em',
               fontWeight: 'bold',
-              transition: 'background-color 0.3s ease'
+              transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#0056b3')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#007bff')}
+            onMouseOver={(e) => (e.currentTarget.style.background = 'linear-gradient(to right, #388E3C, #43A047)', e.currentTarget.style.transform = 'translateY(-2px)', e.currentTarget.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.2)')}
+            onMouseOut={(e) => (e.currentTarget.style.background = 'linear-gradient(to right, #4CAF50, #66BB6A)', e.currentTarget.style.transform = 'translateY(0)', e.currentTarget.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.1)')}
           >
             Add Todo
           </button>
@@ -148,7 +167,11 @@ const TodoApp: React.FC = () => {
             color: '#dc3545',
             textAlign: 'center',
             marginBottom: '15px',
-            fontSize: '0.9em'
+            fontSize: '0.9em',
+            backgroundColor: '#ffe0e6',
+            padding: '10px',
+            borderRadius: '5px',
+            border: '1px solid #dc3545'
           }}>{todoError}</p>
         )}
 
@@ -172,14 +195,15 @@ const TodoApp: React.FC = () => {
                     justifyContent: 'space-between',
                     backgroundColor: '#f9f9f9',
                     border: '1px solid #eee',
-                    borderRadius: '5px',
+                    borderRadius: '10px',
                     padding: '15px',
                     marginBottom: '10px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
                     cursor: 'pointer'
                   }}
-                  onMouseOver={(e) => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)')}
-                  onMouseOut={(e) => (e.currentTarget.style.boxShadow = 'none')}
+                  onMouseOver={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)')}
+                  onMouseOut={(e) => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)')}
                   onClick={() => handleToggleCompleted(todo.id)}
                 >
                   <span
@@ -202,7 +226,7 @@ const TodoApp: React.FC = () => {
                       width: '20px',
                       height: '20px',
                       cursor: 'pointer',
-                      accentColor: '#007bff'
+                      accentColor: '#4CAF50'
                     }}
                   />
                 </li>
