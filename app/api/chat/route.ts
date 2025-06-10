@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 // This is a mock API key. In a real application, you would load this from process.env.
 // For the Canvas environment, leave it empty as __initial_auth_token will be used internally.
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || ""; 
+// const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || ""; // Commented out to fix unused variable error
 
 /**
  * Handles POST requests to /api/chat.
@@ -74,10 +74,14 @@ export async function POST(request: Request) {
       },
     });
 
-  } catch (error) {
+  } catch (error: unknown) { // Changed 'any' to 'unknown'
     console.error('Error in chat API route:', error);
+    let errorMessage = 'Internal server error.';
+    if (error instanceof Error) { // Type guard for 'Error' instance
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Internal server error.' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
